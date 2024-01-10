@@ -282,8 +282,8 @@ void setup() {
     pinMode(LEFT_ENC_PIN, INPUT_PULLUP);
     pinMode(RIGHT_ENC_PIN, INPUT_PULLUP);
 
-    attachInterrupt(digitalPinToInterrupt(LEFT_ENC_PIN), enc_left_int, FALLING);
-    attachInterrupt(digitalPinToInterrupt(RIGHT_ENC_PIN), enc_right_int, FALLING);
+    attachInterrupt(digitalPinToInterrupt(LEFT_ENC_PIN), enc_left_int, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(RIGHT_ENC_PIN), enc_right_int, CHANGE);
   #endif
   initMotorController();
   resetPID();
