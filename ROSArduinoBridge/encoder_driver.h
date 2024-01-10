@@ -12,6 +12,14 @@
   //below can be changed, but should be PORTC pins
   #define RIGHT_ENC_PIN_A PC4  //pin A4
   #define RIGHT_ENC_PIN_B PC5   //pin A5
+#elif defined(VIAM_ENC_COUNTER)
+  #ifdef ARDUINO_MKR
+    #define LEFT_ENC_PIN 6
+    #define RIGHT_ENC_PIN 7
+  #else
+    #define LEFT_ENC_PIN 7
+    #define RIGHT_ENC_PIN 11
+  #endif
 #endif
    
 long readEncoder(int i);

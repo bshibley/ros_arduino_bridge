@@ -60,7 +60,13 @@
    //#define ROBOGAIA
    
    /* Encoders directly attached to Arduino board */
-   #define ARDUINO_ENC_COUNTER
+   //#define ARDUINO_ENC_COUNTER
+
+   /* Use Arduino MKR */
+   #define ARDUINO_MKR
+   
+   /* The Viam Rover motor encoders */
+   #define VIAM_ENC_COUNTER
 
    /* L298 Motor driver*/
    #define L298_MOTOR_DRIVER
@@ -122,7 +128,7 @@
 
 // A pair of varibles to help parse serial commands (thanks Fergs)
 int arg = 0;
-int index = 0;
+int index_ = 0;
 
 // Variable to hold an input character
 char chr;
@@ -146,7 +152,7 @@ void resetCommand() {
   arg1 = 0;
   arg2 = 0;
   arg = 0;
-  index = 0;
+  index_ = 0;
 }
 
 /* Run a command.  Commands are defined in commands.h */
@@ -228,7 +234,7 @@ int runCommand() {
     Serial.println("OK"); 
     break;
   case UPDATE_PID:
-    while ((str = strtok_r(p, ":", &p)) != '\0') {
+    while (strcmp((str = strtok_r(p, ":", &p)),"\0") != 0) {
        pid_args[i] = atoi(str);
        i++;
     }
@@ -271,6 +277,13 @@ void setup() {
     
     // enable PCINT1 and PCINT2 interrupt in the general interrupt mask
     PCICR |= (1 << PCIE1) | (1 << PCIE2);
+  #elif defined(VIAM_ENC_COUNTER)
+    
+    pinMode(LEFT_ENC_PIN, INPUT_PULLUP);
+    pinMode(RIGHT_ENC_PIN, INPUT_PULLUP);
+
+    attachInterrupt(digitalPinToInterrupt(LEFT_ENC_PIN), enc_left_int, FALLING);
+    attachInterrupt(digitalPinToInterrupt(RIGHT_ENC_PIN), enc_right_int, FALLING);
   #endif
   initMotorController();
   resetPID();
@@ -300,8 +313,8 @@ void loop() {
 
     // Terminate a command with a CR
     if (chr == 13) {
-      if (arg == 1) argv1[index] = NULL;
-      else if (arg == 2) argv2[index] = NULL;
+      if (arg == 1) argv1[index_] = NULL;
+      else if (arg == 2) argv2[index_] = NULL;
       runCommand();
       resetCommand();
     }
@@ -310,9 +323,9 @@ void loop() {
       // Step through the arguments
       if (arg == 0) arg = 1;
       else if (arg == 1)  {
-        argv1[index] = NULL;
+        argv1[index_] = NULL;
         arg = 2;
-        index = 0;
+        index_ = 0;
       }
       continue;
     }
@@ -323,12 +336,12 @@ void loop() {
       }
       else if (arg == 1) {
         // Subsequent arguments can be more than one character
-        argv1[index] = chr;
-        index++;
+        argv1[index_] = chr;
+        index_++;
       }
       else if (arg == 2) {
-        argv2[index] = chr;
-        index++;
+        argv2[index_] = chr;
+        index_++;
       }
     }
   }

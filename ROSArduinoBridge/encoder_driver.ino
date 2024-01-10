@@ -68,6 +68,32 @@
       return;
     }
   }
+#elif defined(VIAM_ENC_COUNTER)
+  volatile long left_enc_pos = 0L;
+  volatile long right_enc_pos = 0L;
+  void enc_left_int(){
+    left_enc_pos++;
+  }
+  void enc_right_int(){
+    right_enc_pos++;
+  }
+  
+  /* Wrap the encoder reading function */
+  long readEncoder(int i) {
+    if (i == LEFT) return left_enc_pos;
+    else return right_enc_pos;
+  }
+
+  /* Wrap the encoder reset function */
+  void resetEncoder(int i) {
+    if (i == LEFT){
+      left_enc_pos=0L;
+      return;
+    } else { 
+      right_enc_pos=0L;
+      return;
+    }
+  }
 #else
   #error A encoder driver must be selected!
 #endif
